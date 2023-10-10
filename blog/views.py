@@ -1,4 +1,4 @@
-from typing import Any
+from django.urls import reverse_lazy
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -69,9 +69,9 @@ class PostDetailView(View):
         context = {}
         post = Post.objects.get(id=kwargs['pk'])
 
+        context['comments'] = Comment.objects.filter(post=post).order_by('-date_added')
         context['post'] = post
-        context['comments'] = Comment.objects.filter(post=post)
-        context['recent_posts'] = Post.objects.order_by('-date_posted')[:4]
+        #context['number_comments'] = Comment.objects.all().count()
         return context
 
 
@@ -116,4 +116,31 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
 def about(request):
     return render(request, 'blog/about.html', {'title': 'About'})
+
+
+
+class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Comment
+    fields = ['content']
+    template_name = 'blog/update_comment.html'
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        return super().form_valid(form)
+    
+    def test_func(self):
+        post = self.get_object()
+        if self.request.user == post.author:
+            return True
+        return False
+    
+
+class CommentDeleteView(DeleteView):
+    model = Comment
+    template_name = 'blog/delete_comment.html'
+
+    def get_success_url(self):
+        post = get_object_or_404(Post, pk=self.object.post.id)
+
+        return reverse_lazy('post-detail', kwargs={'pk': post.pk})
 

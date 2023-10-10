@@ -4,42 +4,53 @@
         <img class="rounded-circle article-img" src="{{ post.author.profile.image.url }}">
         <div class="media-body">
         <div class="article-metadata">
-            <a class="mr-2 link-secondary" href="{% url 'user-posts' post.author.username %}">{{ post.author }}</a>
+            <a class="mr-2 text-dark" href="{% url 'user-posts' post.author.username %}">{{ post.author }}</a>
             <small class="text-muted">{{ post.date_posted|date:"F d, Y" }}</small>
+            <hr>
+        </div>
+            <h2 class="article-title">{{ post.title }}</h2>
+            <p class="article-content">{{ post.content }}</p>
             {% if post.author == user %}
                 <div>
-                    <a class="btn btn-secondary btn-sm mt-1 mb-1 float-right" href="{% url 'post-update' post.id %}">Update</a>
-                    <a class="btn btn-danger btn-sm mt-1 mb-1 float-right" href="{% url 'post-delete' post.id %}">Delete</a>
+                    <a class="btn btn-outline-danger btn-sm mt-1 mb-1 buttons" href="{% url 'post-delete' post.id %}">Delete</a>
+                    <a class="btn btn-outline-secondary btn-sm mt-1 mb-1 buttons" href="{% url 'post-update' post.id %}">Update</a>
                 </div>
             {% endif %}
         </div>
-        <h2 class="article-title">{{ post.title }}</h2>
-        <p class="article-content">{{ post.content }}</p>
-        </div>
     </article>
-
+    <br>
     <div class="content-section">
         <form method="POST">
             {% csrf_token %}
             <div>  
-                <h5 class="article-title">Leave A Comment</h5>
-                <textarea name="comment-content"  class="comment" placeholder="Write comment..." required></textarea>
+                <h6 class="article-title">Leave a comment...</h6>
+                <textarea name="comment-content" class="textarea" placeholder="Add a comment..." required></textarea>
             </div>
-            <div class="form-group ">
-                <button class="btn btn-outline-info" type="submit">Add Comment</button>
+            <div class="form-group">
+                <button class="btn btn-outline-dark btn-sm" type="submit">Comment</button>
             </div>
         </form>
-    </div>    
+    </div> 
+    
+    <div>
+        <br>
+        <h4>Comments ({{ post.comments.count }})</h4>
+    </div>
 
     {% for comment in post.comments.all %}
         <div class="article-author">
-            <small><strong><a class="mr-2 article-author" href="{% url 'user-posts' post.author.username %}">{{ comment.author }}</a></strong></small>
+            <small><a class="mr-2 text-dark" href="{% url 'user-posts' comment.author.username %}">{{ comment.author }}</a></small>
             <small class="text-muted">{{ comment.date_added|date:"F d, Y" }}</small>
         </div>
         <div>
-            <li class="list-group-item comment-section ">
+            <li class="list-group-item">
                 {{ comment.content }}
+                {% if comment.author == user %}
+                    <a class="btn btn-outline-danger btn-sm buttons" href="{% url 'comment-delete' comment.id %}">Delete</a>
+                    <a class="btn btn-outline-secondary btn-sm buttons" href="{% url 'comment-update' comment.id %}">Edit</a>
+                {% endif %}
             </li>
         </div>
+        <hr>
     {% endfor %}
 {% endblock content %}

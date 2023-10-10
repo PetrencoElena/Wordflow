@@ -108,6 +108,23 @@
           background-color: #E4E4DE;
         }
 
+        .textarea {
+          width: 100%;
+          height: 100px;
+        }
+
+        .buttons {
+          float: right;
+          margin-left: 7px;
+          
+        }
+
+        .article-img-sidebar {
+            height: 45px;
+            width: 45px;
+            margin-right: 16px;
+          }
+
     </style>
 
 </head>
@@ -152,19 +169,27 @@
             {% endif %}
             {% block content %}{% endblock %}
           </div>
-          <div class="col-md-4">
-            <div class="content-section">
-              <h3>Our Sidebar</h3>
-              <p class='text-muted'>You can put any information here you'd like.
-                <ul class="list-group">
-                  <li class="list-group-item list-group-item-light">Latest Posts</li>
-                  <li class="list-group-item list-group-item-light">Announcements</li>
-                  <li class="list-group-item list-group-item-light">Calendars</li>
-                  <li class="list-group-item list-group-item-light">etc</li>
-                </ul>
-              </p>
+          {% if recent_posts %}
+            <div class="col-md-4">
+              <div class="content-section">
+                <h3 class="text-center">Recent Posts</h3>
+                <hr>
+                {% for post in recent_posts %}
+                  <article class="media sidebar-section">
+                    <a href="{% url 'user-posts' post.author.username %}">
+                      <img class="rounded-circle article-img-sidebar" src="{{ post.author.profile.image.url }}" alt="avatar">
+                    </a>
+                    <div>
+                      <a href="{% url 'post-detail' post.id %}">
+                        <h5 class="ml-2 article-title">{{ post.title }}</h5>
+                        <hr>
+                      </a>
+                    </div>
+                  </article>
+                {% endfor %}
+              </div>
             </div>
-          </div>
+          {% endif %}
         </div>
     </main>
 

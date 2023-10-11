@@ -6,7 +6,6 @@
         <div class="article-metadata">
             <a class="mr-2 text-dark" href="{% url 'user-posts' post.author.username %}">{{ post.author }}</a>
             <small class="text-muted">{{ post.date_posted|date:"F d, Y" }}</small>
-            <hr>
         </div>
             <h2 class="article-title">{{ post.title }}</h2>
             <p class="article-content">{{ post.content }}</p>
@@ -45,9 +44,27 @@
         <div>
             <li class="list-group-item">
                 {{ comment.content }}
-                {% if comment.author == user %}
-                    <a class="btn btn-outline-danger btn-sm buttons" href="{% url 'comment-delete' comment.id %}">Delete</a>
-                    <a class="btn btn-outline-secondary btn-sm buttons" href="{% url 'comment-update' comment.id %}">Edit</a>
+                {% if user.is_authenticated %}
+                    <div class="like-dislike-button">
+                        <div class="like-dislike-button">
+                            <form method="POST" action="{% url 'comment-like' post.pk comment.pk%}">
+                                {% csrf_token %}
+                                <input type="hidden" name="next" value="{{ request.path }}">
+                                <button class="btn btn-light btn-sm mr-2" type="submit">Likes {{ comment.likes.all.count }}</button>
+                            </form>
+                            <form method="POST" action="{% url 'comment-dislike' post.pk comment.pk %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="next" value="{{ request.path }}">
+                                <button class="btn btn-light btn-sm" type="submit"> Dislikes {{ comment.dislikes.all.count }}</button>
+                            </form>
+                        </div>
+                        <div>
+                            {% if comment.author == user %}
+                                <a class="btn btn-outline-danger btn-sm" href="{% url 'comment-delete' comment.id %}">Delete</a>
+                                <a class="btn btn-outline-secondary btn-sm" href="{% url 'comment-update' comment.id %}">Edit</a>
+                            {% endif %}
+                        </div>
+                    </div>
                 {% endif %}
             </li>
         </div>
